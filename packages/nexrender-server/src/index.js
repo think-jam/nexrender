@@ -1,43 +1,59 @@
-const cors   = require('micro-cors')
-const micro  = require('micro')
-const {send} = require('micro')
+const cors = require("micro-cors");
+const micro = require("micro");
+const { send } = require("micro");
 
-const withCors = cors({ allowHeaders: ['X-Requested-With','Access-Control-Allow-Origin','X-HTTP-Method-Override','Content-Type','Authorization','Accept','nexrender-secret']})
+const withCors = cors({
+    allowHeaders: [
+        "X-Requested-With",
+        "Access-Control-Allow-Origin",
+        "X-HTTP-Method-Override",
+        "Content-Type",
+        "Authorization",
+        "Accept",
+        "nexrender-secret",
+    ],
+});
 
-const { router, withNamespace } = require('microrouter')
-const { get, post, put, del }   = require('microrouter')
-const { withSecret }            = require('./helpers/secret')
+const { router, withNamespace } = require("microrouter");
+const { get, post, put, del } = require("microrouter");
+const { withSecret } = require("./helpers/secret");
+const Storage = require("./helpers/storage");
+const { initStorage } = require("./helpers/database");
 
-const ns = withNamespace('/api/v1')
+const ns = withNamespace("/api/v1");
 
 const subhandler = router(
-    ns(post('/jobs',            require('./routes/jobs-create'))),
-    ns(get('/jobs',             require('./routes/jobs-fetch'))),
-    ns(get('/jobs/status',      require('./routes/jobs-status'))),
-    ns(get('/jobs/pickup',      require('./routes/jobs-pickup'))),
-    ns(get('/jobs/:uid/status', require('./routes/jobs-status'))),
-    ns(get('/jobs/:uid',        require('./routes/jobs-fetch'))),
-    ns(put('/jobs/:uid',        require('./routes/jobs-update'))),
-    ns(del('/jobs/:uid',        require('./routes/jobs-remove'))),
-)
+    ns(post("/jobs", require("./routes/jobs-create"))),
+    ns(get("/jobs", require("./routes/jobs-fetch"))),
+    ns(get("/jobs/status", require("./routes/jobs-status"))),
+    ns(get("/jobs/pickup", require("./routes/jobs-pickup"))),
+    ns(get("/jobs/:uid/status", require("./routes/jobs-status"))),
+    ns(get("/jobs/:uid", require("./routes/jobs-fetch"))),
+    ns(put("/jobs/:uid", require("./routes/jobs-update"))),
+    ns(del("/jobs/:uid", require("./routes/jobs-remove")))
+);
 
-const handler = secret => {
+const handler = (secret) => {
     return withCors((req, res) => {
-        if (req.method == 'OPTIONS') {
-            return send(res, 200, 'ok');
+        if (req.method == "OPTIONS") {
+            return send(res, 200, "ok");
         }
 
-        if (req.method == 'GET' && req.url == '/api/v1/health') {
-            return send(res, 200, 'ok');
+        if (req.method == "GET" && req.url == "/api/v1/health") {
+            return send(res, 200, "ok");
         }
 
-        return withSecret(secret, subhandler)(req, res)
-    })
-}
+        return withSecret(secret, subhandler)(req, res);
+    });
+};
 
 module.exports = {
     createHandler: handler,
-    listen: (port = 3000, secret = '') => {
-        return micro(handler(secret)).listen(port)
-    }
-}
+    listen: (port = 3000, secret = "") => {
+        return micro(handler(secret)).listen(port);
+    },
+    newStorage: (mongoDBConnection) => {
+        // create a new Storage
+        initStorage(Storage.getInstance(mongoDBConnection));
+    },
+};

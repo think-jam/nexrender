@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
 
     try {
         assert(validate(job) == true);
-        insert(job);
+        await insert(job);
     } catch (err) {
         return send(res, 400, err.stack)
     }
