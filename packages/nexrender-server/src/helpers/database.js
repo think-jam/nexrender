@@ -1,84 +1,29 @@
-const os   = require('os')
-const fs   = require('fs')
-const path = require('path')
+const os = require("os");
+const fs = require("fs");
+const path = require("path");
+const Storage = require("./storage");
 
-/* initial data */
-const defaultPath = path.join(os.homedir(), 'nexrender')
-const defaultName = 'database.js'
+let _storage = undefined;
 
-const database = process.env.NEXRENDER_DATABASE
-    ? process.env.NEXRENDER_DATABASE
-    : path.join(defaultPath, defaultName);
+const initStorage = (storage) => {
+    if (_storage === undefined) _storage = storage;
+    else throw "Storage Already initialized"
+};
 
-let data = (fs.existsSync(database) && fs.readFileSync(database, 'utf8'))
-    ? JSON.parse(fs.readFileSync(database, 'utf8'))
-    : [];
+const insert = async (entry) => { 
+    checkStorage(); 
+    return await _storage.insert(entry);
+ }
+const fetch = async (key) => await _storage.fetch(key);
+const update = (key, entry) => _storage.update(key, entry);
+const remove = (key, entry) => _storage.remove(key, entry);
+const cleanup = () => _storage.cleanup();
 
-if (!process.env.NEXRENDER_DATABASE && !fs.existsSync(defaultPath)) {
-    fs.mkdirSync(defaultPath);
-}
-
-/* internal methods */
-const save = () => fs.writeFileSync(database, JSON.stringify(data))
-
-const indexOf = value => {
-    for (var i = data.length - 1; i >= 0; i--) {
-        const entry = data[i];
-        if (entry.uid == value) {
-            return i;
-        }
+const checkStorage = () => {
+    if (_storage === undefined) {
+        throw new "Storage not initialized"
     }
-
-    return -1;
-}
-
-/* public api */
-const fetch = uid => uid ? data[indexOf(uid)] : data
-
-const insert = entry => {
-    const now = new Date()
-
-    entry.updatedAt = now
-    entry.createdAt = now
-
-    data.push(entry);
-    setImmediate(save);
-}
-
-const update = (uid, entry) => {
-    const value = indexOf(uid);
-
-    if (value == -1) {
-        return null;
-    }
-
-    const now = new Date()
-
-    data[value] = Object.assign(
-        {}, data[value], entry,
-        { updatedAt: now }
-    );
-
-    setImmediate(save);
-    return data[value];
-}
-
-const remove = uid => {
-    const value = indexOf(uid);
-
-    if (value === -1) {
-        return null;
-    }
-
-    data.splice(value, 1)
-    setImmediate(save);
-    return true;
-}
-
-const cleanup = () => {
-    data = []
-    save()
-}
+};
 
 module.exports = {
     insert,
@@ -86,4 +31,5 @@ module.exports = {
     update,
     remove,
     cleanup,
-}
+    initStorage,
+};
