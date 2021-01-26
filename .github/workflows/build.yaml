@@ -1,5 +1,9 @@
 name: Nexrender server build binary
 
+on:
+  push:
+    branches: [ $default-branch, "feature/refactor-nexrender-server" ]
+
 jobs:
     test:
         runs-on: ubuntu-latest
