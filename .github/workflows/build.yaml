@@ -50,7 +50,7 @@ jobs:
                   draft: false
                   prerelease: false
             - name: Upload Release Asset Linux
-              id: upload-release-asset
+              id: upload-release-linux
               uses: actions/upload-release-asset@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -59,7 +59,7 @@ jobs:
                   asset_path: ./bin/nexrender-server-linux
                   asset_name: nexrender-server-linux
             - name: Upload Release Asset Windows
-              id: upload-release-asset
+              id: upload-release-windows
               uses: actions/upload-release-asset@v1
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
