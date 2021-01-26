@@ -10,8 +10,10 @@ class Storage {
         if (!Storage.instance) {
             if (mongoDBConnection === undefined || mongoDBConnection === null) {
                 Storage.instance = new LocalStorageQueue();
+                console.log("Storage initialized with LocalStorage")
             } else {
                 Storage.instance = new MongoDBQueue(mongoDBConnection);
+                console.log("Storage initialized with MongoDB Queue")
             }
         }
         return Storage.instance;
