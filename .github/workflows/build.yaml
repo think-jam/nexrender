@@ -19,7 +19,7 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
             - run: npm ci
-            - run: npm install-child
+            - run: npm run install-child
             - run: npm run start
             - run: npm test
 
@@ -44,7 +44,7 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
             - run: npm ci
-            - run: npm install-child
+            - run: npm run install-child
             - run: npm run pkg
             - name: Create Release
               id: create_release
