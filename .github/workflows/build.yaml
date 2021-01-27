@@ -45,7 +45,7 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
-                  tag_name: refactor-nexrender
+                  tag_name: refactor-nexrender-v1.0
                   release_name: Release refactor-nexrender
                   draft: false
                   prerelease: false
