@@ -53,6 +53,7 @@ class MongoDBQueue extends Queue {
     }
 
     async _doUpdate(key, entry) {
+        delete entry._id; // don't try to update internal mongodb id
         await this.collection.updateOne(
             { uid: key },
             { $set: { ...entry, updatedAt: new Date() } }
