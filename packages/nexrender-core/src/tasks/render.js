@@ -37,7 +37,7 @@ module.exports = (job, settings) => {
     params.push('-comp', job.template.composition);
     params.push('-output', outputFileAE);
 
-    if (!settings.skipRender) {
+    if (!settings.skipRender && !job.skipRender) {
         option(params, '-OMtemplate', job.template.outputModule);
         option(params, '-RStemplate', job.template.settingsTemplate);
 
@@ -51,7 +51,7 @@ module.exports = (job, settings) => {
 
     option(params, '-r', jobScriptFile);
 
-    if (!settings.skipRender && settings.multiFrames) params.push('-mp');
+    if ((!settings.skipRender && !job.skipRender) && settings.multiFrames) params.push('-mp');
     if (settings.reuse) params.push('-reuse');
     if (job.template.continueOnMissing) params.push('-continueOnMissingFootage')
 
@@ -161,7 +161,7 @@ module.exports = (job, settings) => {
             fs.writeFileSync(logPath, outputStr);
 
             /* resolve job without checking if file exists, or its size for image sequences */
-            if (settings.skipRender || job.template.imageSequence || ['jpeg', 'jpg', 'png'].indexOf(outputFile) !== -1) {
+            if (settings.skipRender || job.skipRender || job.template.imageSequence || ['jpeg', 'jpg', 'png'].indexOf(outputFile) !== -1) {
                 return resolve(job)
             }
 

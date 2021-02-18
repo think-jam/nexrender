@@ -175,7 +175,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
     EnhancedScript.prototype.setupRegexes = function ()         {
 
         this.regexes.searchUsageByMethod = (method = "set", flags = "g") => {
-            const str = `(?<!(?:[\\/\\s]))(?<!(?:[\\*\\s]))(?:\\s*${this.getKeyword()}\\s*\\.)\\s*(${method})\\s*(?:\\()(?:["']{1})([a-zA-Z0-9._-]+)(?:["']{1})(?:\\))`;
+            const str = `(?<!(?:[\\/\\s]))(?<!(?:[\\*\\s]))(?:\\s*${this.getKeyword()}\\s*\\.\\s*${method}\\s*)(?:\\()(?:["']{1})([a-zA-Z0-9._-]+)(?:["']{1})(?:\\))`;
             return this.buildRegex(str, flags);
         }
 
@@ -237,10 +237,8 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
 
             this.getLogger().log("We found a self-invoking method with arguments!");
             this.getLogger().log(JSON.stringify(methodArgs));
-            const foundArgument = methodArgs.filter( argMatch => {
-                [fullMatch, method, arg] = argMatch;
-
-                return parameter.arguments && parameter.arguments.find(o => o.key == arg);
+            const foundArgument = methodArgs.filter(argMatch => {
+                return parameter.arguments && parameter.arguments.find(o => o.key == argMatch);
             });
 
 
@@ -314,11 +312,10 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
 
         if (nxMatches && nxMatches.length > 0 ) {
 
-            nxMatches.forEach( match => {
-                const [fullMatch, method, keyword] = match;
+            nxMatches.forEach(match => {
 
                 var nxMatch = {
-                    key: keyword.replace(/\s/g, ''),
+                    key: match.replace(/\s/g, ''),
                     isVar: false,
                     isFn: false,
                     value: this.getDefaultValue(match.default ? match.default : this.defaults.global)
@@ -465,6 +462,17 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
     return enhancedScript.build();
 }
 
+const expandWorkPath = (workPath, asset) => {
+    return asset.parameters && asset.parameters.map(param => {
+        if (Array.isArray(param.value)) {
+            param.value = param.value.map(item => item.replace('${workPath}', workPath));
+        } else if (typeof param.value === 'string') {
+            param.value = param.value.replace('${workPath}', workPath);
+        }
+        return param
+    });
+}
+
 module.exports = (job, settings) => {
     settings.logger.log(`[${job.uid}] running script assemble...`);
 
@@ -484,6 +492,7 @@ module.exports = (job, settings) => {
                 break;
 
             case 'script':
+                expandWorkPath(base, asset);
                 data.push(wrapEnhancedScript(asset, job.uid, settings));
                 break;
         }
