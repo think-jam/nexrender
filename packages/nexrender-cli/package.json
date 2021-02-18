@@ -11,12 +11,11 @@
   },
   "pkg": {
     "targets": [
-      "node12-macos-x64",
       "node12-win-x64"
     ]
   },
   "dependencies": {
-    "@nexrender/core": "^1.26.1",
+    "@nexrender/core": "file:../nexrender-core",
     "arg": "^4.1.0",
     "chalk": "^2.4.2"
   },

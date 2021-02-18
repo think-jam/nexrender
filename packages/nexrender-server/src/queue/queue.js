@@ -1,5 +1,5 @@
 /**
- * Queue inteface to allow customs queue in nexrender
+ * Queue interface to allow customs queue in nexrender
  * and should not be used
  */
 class Queue {
