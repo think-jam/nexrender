@@ -1,11 +1,12 @@
 const fs = require('fs')
 const path = require('path')
-const {spawn} = require('child_process')
-const {expandEnvironmentVariables, checkForWSL} = require('../helpers/path')
+const { spawn } = require('child_process')
+const { expandEnvironmentVariables, checkForWSL } = require('../helpers/path')
 
 const progressRegex = /([\d]{1,2}:[\d]{2}:[\d]{2}:[\d]{2})\s+(\(\d+\))/gi;
 const durationRegex = /Duration:\s+([\d]{1,2}:[\d]{2}:[\d]{2}:[\d]{2})/gi;
 const startRegex = /Start:\s+([\d]{1,2}:[\d]{2}:[\d]{2}:[\d]{2})/gi;
+const scriptRegex = /SCRIPT_OUTPUT:.*(\{.*\})/gi;
 
 const option = (params, name, ...values) => {
     if (values !== undefined) {
@@ -80,6 +81,7 @@ module.exports = (job, settings) => {
     let previousProgress = undefined;
     let renderStopwatch = null;
     let projectStart = null;
+    let scriptsResult = [];
 
     const parse = (data) => {
         const string = ('' + data).replace(/;/g, ':'); /* sanitize string */
@@ -92,7 +94,7 @@ module.exports = (job, settings) => {
         const matchProgress = !isNaN(parseInt(projectDuration)) ? progressRegex.exec(string) : null;
         // If durationRegex has a match convert tstamp to seconds and define projectDuration only once
         projectDuration = (matchDuration) ? seconds(matchDuration[1]) : projectDuration;
-        // If startRegex has a match convert tstamp to seconds and define projectStart only once
+        // If startRegex has a match convert tstamp to seconds and define progjectStart only once
         projectStart = (matchStart) ? seconds(matchStart[1]) : projectStart;
 
         if (matchProgress) {
@@ -107,6 +109,14 @@ module.exports = (job, settings) => {
                     job.onRenderProgress(job, job.renderProgress);
                 }
             }
+        }
+
+        const match = scriptRegex.exec(string)
+        if (match) {
+            const [_, result] = match;
+            const parsed = JSON.parse(result);
+            if (parsed)
+                scriptsResult.push(parsed)
         }
 
         return data;
@@ -142,7 +152,7 @@ module.exports = (job, settings) => {
 
         /* on finish (code 0 - success, other - error) */
         instance.on('close', (code) => {
-
+            console.log(JSON.stringify(scriptsResult, null, 4))
             const outputStr = output
                 .map(a => '' + a).join('');
 

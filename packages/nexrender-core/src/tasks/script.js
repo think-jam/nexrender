@@ -1,5 +1,5 @@
-const fs     = require('fs')
-const path   = require('path')
+const fs = require('fs')
+const path = require('path')
 const script = require('../assets/nexrender.jsx')
 const matchAll = require('match-all')
 const { checkForWSL } = require('../helpers/path')
@@ -7,15 +7,15 @@ const { checkForWSL } = require('../helpers/path')
 /* helpers */
 const escape = str => {
     str = JSON.stringify(str)
-    str = str.substring(1, str.length-1)
+    str = str.substring(1, str.length - 1)
     str = `'${str.replace(/\'/g, '\\\'')}'`
     return str
 }
 
 const selectLayers = ({ composition, layerName, layerIndex }, callbackString) => {
     const method = layerName ? 'selectLayersByName' : 'selectLayersByIndex';
-    const compo  = composition === undefined ? 'null' : escape(composition);
-    const value  = layerName ? escape(layerName) : layerIndex;
+    const compo = composition === undefined ? 'null' : escape(composition);
+    const value = layerName ? escape(layerName) : layerIndex;
 
     return (`nexrender.${method}(${compo}, ${value}, ${callbackString});`);
 }
@@ -72,41 +72,41 @@ const wrapScript = ({ dest }) => (`(function() {
 
     @return string             (String)         The compiled script with parameter injection outside its original scope to avoid user-defined defaults collision.
 */
-const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ...asset }, jobID, settings) => {
+const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults, ...asset }, jobID, settings) => {
 
-    function EnhancedScript (
-            dest,
-            src,
-            parameters          = [],
-            keyword             = "NX",
-            defaults            = {
-                global : "null",
-                string : "",
-                number: 0,
-                array: [],
-                boolean: false,
-                object: {},
-                function : function (){},
-                null: null
-            },
-            jobID,
-            logger
+    function EnhancedScript(
+        dest,
+        src,
+        parameters = [],
+        keyword = "NX",
+        defaults = {
+            global: "null",
+            string: "",
+            number: 0,
+            array: [],
+            boolean: false,
+            object: {},
+            function: function () { },
+            null: null
+        },
+        jobID,
+        logger
     ) {
-        this.scriptPath         = src;
-        this.script             = fs.readFileSync(dest, 'utf8');
-        this.keyword            = keyword;
-        this.defaults           = defaults;
-        this.jobID              = jobID;
-        this.logger             = logger;
-        this.jsonParameters     = parameters;
+        this.scriptPath = src;
+        this.script = fs.readFileSync(dest, 'utf8');
+        this.keyword = keyword;
+        this.defaults = defaults;
+        this.jobID = jobID;
+        this.logger = logger;
+        this.jsonParameters = parameters;
 
-        this.regexes            = {
+        this.regexes = {
             keywordUsage: null,
             keywordInit: null,
             fnDetect: null
         };
 
-        this.missingJSONParams  = [];
+        this.missingJSONParams = [];
 
 
 
@@ -119,29 +119,29 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
     * Utilities, one-liners
     */
 
-    EnhancedScript.prototype.getScriptPath = function()             { return this.scriptPath; }
+    EnhancedScript.prototype.getScriptPath = function () { return this.scriptPath; }
 
-    EnhancedScript.prototype.getGetterMethod = function ()          { return "get"; }
+    EnhancedScript.prototype.getGetterMethod = function () { return "get"; }
 
-    EnhancedScript.prototype.getSetterMethod = function ()          { return "set"; }
+    EnhancedScript.prototype.getSetterMethod = function () { return "set"; }
 
-    EnhancedScript.prototype.getLogger = function ()                { return this.logger; }
+    EnhancedScript.prototype.getLogger = function () { return this.logger; }
 
-    EnhancedScript.prototype.getJSXScript = function ()             { return this.script; }
+    EnhancedScript.prototype.getJSXScript = function () { return this.script; }
 
-    EnhancedScript.prototype.getJSONParams = function ()            { return this.jsonParameters; }
+    EnhancedScript.prototype.getJSONParams = function () { return this.jsonParameters; }
 
-    EnhancedScript.prototype.jsonParametersCount = function ()      { return this.jsonParameters.length; }
+    EnhancedScript.prototype.jsonParametersCount = function () { return this.jsonParameters.length; }
 
-    EnhancedScript.prototype.getMissingJSONParams = function()      { return this.missingJSONParams; }
+    EnhancedScript.prototype.getMissingJSONParams = function () { return this.missingJSONParams; }
 
-    EnhancedScript.prototype.countMissingJSONParams = function()    { return this.getMissingJSONParams().length; }
+    EnhancedScript.prototype.countMissingJSONParams = function () { return this.getMissingJSONParams().length; }
 
-    EnhancedScript.prototype.getKeyword = function ()               { return this.keyword; }
+    EnhancedScript.prototype.getKeyword = function () { return this.keyword; }
 
-    EnhancedScript.prototype.getFnArgsKeyword = function ()         { return this.fnArgsKeyword; }
+    EnhancedScript.prototype.getFnArgsKeyword = function () { return this.fnArgsKeyword; }
 
-    EnhancedScript.prototype.getRegex = function (key)              { return this.regexes[key]; }
+    EnhancedScript.prototype.getRegex = function (key) { return this.regexes[key]; }
 
 
     /*
@@ -150,7 +150,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
             @param key                  (String)("string"|"number"|"array"|"object"|"null"|"function") The key to the required default parameter. Defaults to "null".
             @returns default            The value from this.defaults array.
         */
-    EnhancedScript.prototype.getDefaultValue = function (key)   { return key in this.defaults ? this.defaults[key] : this.defaults[this.defaults.global]; }
+    EnhancedScript.prototype.getDefaultValue = function (key) { return key in this.defaults ? this.defaults[key] : this.defaults[this.defaults.global]; }
 
     /*
         Add Missing JSON Parameter
@@ -166,13 +166,13 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
                                     }
         @returns object             The recently added object.
     */
-    EnhancedScript.prototype.addToMissingJsonParameter = function (nxMatch)   { return this.missingJSONParams.push(nxMatch); }
+    EnhancedScript.prototype.addToMissingJsonParameter = function (nxMatch) { return this.missingJSONParams.push(nxMatch); }
 
     /*
     * End one-liners
     */
 
-    EnhancedScript.prototype.setupRegexes = function ()         {
+    EnhancedScript.prototype.setupRegexes = function () {
 
         this.regexes.searchUsageByMethod = (method = "set", flags = "g") => {
             const str = `(?<!(?:[\\/\\s]))(?<!(?:[\\*\\s]))(?:\\s*${this.getKeyword()}\\s*\\.\\s*${method}\\s*)(?:\\()(?:["']{1})([a-zA-Z0-9._-]+)(?:["']{1})(?:\\))`;
@@ -187,15 +187,15 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         this.regexes.selfInvokingFn = new RegExp(/(?:(?:^\() *(?:.*?)(?:} *\)))(?: *(?:\() *(.*?) *(?:\) *$))/);
     }
 
-    EnhancedScript.prototype.escapeForRegex = function (str)    {
+    EnhancedScript.prototype.escapeForRegex = function (str) {
         return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
     }
 
-    EnhancedScript.prototype.stripComments = function (templateLiteral)               {
+    EnhancedScript.prototype.stripComments = function (templateLiteral) {
         return templateLiteral.replace(/\/\*[\s\S]*?\*\/|([^:]|^)\/\/.*$/gm, '');
     }
 
-    EnhancedScript.prototype.buildRegex = function(templateLiteral, flags)            {
+    EnhancedScript.prototype.buildRegex = function (templateLiteral, flags) {
         return new RegExp(this.stripComments(templateLiteral).replace(/(\r\n|r\|\n|\s)/gm, ''), flags);
     }
 
@@ -206,34 +206,34 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         @return bool                (Boolean) If a method is detected then it's stripped from String quotes, else it's returned in it's original type.
     */
 
-    EnhancedScript.prototype.isMethod = function (param)                    {
-        if(typeof param == "string") {
+    EnhancedScript.prototype.isMethod = function (param) {
+        if (typeof param == "string") {
             return (param.match(this.getRegex("fnDetect")) ? true : false);
         }
         return false
     }
 
-    EnhancedScript.prototype.parseMethod = function (parameter)             {
+    EnhancedScript.prototype.parseMethod = function (parameter) {
         const selfInvokingFn = matchAll(parameter.value, this.getRegex('selfInvokingFn'));
-        if ( selfInvokingFn ) {
+        if (selfInvokingFn) {
             this.getLogger().log(Array.from(selfInvokingFn));
             return this.parseMethodWithArgs(parameter);
         }
         return parameter.value;
     }
 
-    EnhancedScript.prototype.matchAsJSONParameterKey = function ( key )     {
+    EnhancedScript.prototype.matchAsJSONParameterKey = function (key) {
         const parameterMatch = this.getJSONParams().find(o => o.key == key);
 
         return parameterMatch ? parameterMatch.value : key;
     }
 
-    EnhancedScript.prototype.parseMethodWithArgs = function (parameter)     {
+    EnhancedScript.prototype.parseMethodWithArgs = function (parameter) {
         let value = parameter.value;
 
         const methodArgs = matchAll(parameter.value, this.getRegex('searchUsageByMethod')('arg', "gm")).toArray();
 
-        if( methodArgs.length > 0 ) {
+        if (methodArgs.length > 0) {
 
             this.getLogger().log("We found a self-invoking method with arguments!");
             this.getLogger().log(JSON.stringify(methodArgs));
@@ -242,7 +242,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
             });
 
 
-            if( foundArgument ) {
+            if (foundArgument) {
                 // Search if argument is present in JSON and has `arguments` array to match against the results.
                 // And do a replacement with either the found argument on the array or a global default value.
 
@@ -257,7 +257,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         return value;
     }
 
-    EnhancedScript.prototype.detectValueType = function (parameter)               {
+    EnhancedScript.prototype.detectValueType = function (parameter) {
         return this.isMethod(parameter.value) ? this.parseMethod(parameter) : JSON.stringify(parameter.value);
     }
 
@@ -267,7 +267,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         @param key                  (String)("string"|"number"|"array"|"object"|"null"|"function") The key to the required default parameter. Defaults to "null".
         @returns default            (String) A template literal string with the embedded default parameter. If it's a string then it's wrapped with quotes.
     */
-    EnhancedScript.prototype.getStringifiedDefaultValue = function (key)            {
+    EnhancedScript.prototype.getStringifiedDefaultValue = function (key) {
         return JSON.stringify(this.getDefaultValue(key))
     }
 
@@ -279,7 +279,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         @returns string             (String)            A one-line version of the original script without comment blocks.
     */
 
-    EnhancedScript.prototype.stripCommentsFromScript = function (script)             {
+    EnhancedScript.prototype.stripCommentsFromScript = function (script) {
         // https://levelup.gitconnected.com/advanced-regex-find-and-remove-multi-line-comments-in-your-code-c162ba6e5811
         return script
             .replace(/\n/g, " ")
@@ -302,7 +302,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         @return bool                (Boolean)           Whether or not there are any variables to inject. Defaults to false.
     */
 
-    EnhancedScript.prototype.findMissingMatchesInJSX = function ()                         {
+    EnhancedScript.prototype.findMissingMatchesInJSX = function () {
 
         const script = this.stripCommentsFromScript(this.getJSXScript());
 
@@ -310,7 +310,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
 
         const nxMatches = matchAll(script, this.getRegex("searchUsageByMethod")("get", "gm")).toArray();
 
-        if (nxMatches && nxMatches.length > 0 ) {
+        if (nxMatches && nxMatches.length > 0) {
 
             nxMatches.forEach(match => {
 
@@ -320,14 +320,14 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
                     isFn: false,
                     value: this.getDefaultValue(match.default ? match.default : this.defaults.global)
                 };
-                if ( this.getJSONParams().filter( o => o.key == nxMatch.key ).length == 0) { // If the parameter doesn't have a value defined in JSON
+                if (this.getJSONParams().filter(o => o.key == nxMatch.key).length == 0) { // If the parameter doesn't have a value defined in JSON
                     this.addToMissingJsonParameter(nxMatch);
                 }
 
             });
         }
         const missingJSONParameters = this.countMissingJSONParams();
-        if( missingJSONParameters > 0) {
+        if (missingJSONParameters > 0) {
             this.getLogger().log(`[${jobID}] ${this.displayAlert()}`);
         }
         return missingJSONParameters > 0;
@@ -342,7 +342,7 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
 
         @return string          (String)    JSON "parameters" object.
       */
-     EnhancedScript.prototype.generatePlaceholderParameters = function ( ) {
+    EnhancedScript.prototype.generatePlaceholderParameters = function () {
         const missingParams = this.getMissingJSONParams();
 
         const template = (key) => `
@@ -370,11 +370,11 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
 
         @return string           (String)   The template literal string displaying all the occurences if any.
     */
-    EnhancedScript.prototype.displayAlert = function ()                             {
-        const keyword            = this.getKeyword();
+    EnhancedScript.prototype.displayAlert = function () {
+        const keyword = this.getKeyword();
 
         return ` -- W A R N I N G --
-        The following parameters used in the script were NOT found on the JSON "parameters" object of your script asset ${this.getScriptPath() }
+        The following parameters used in the script were NOT found on the JSON "parameters" object of your script asset ${this.getScriptPath()}
 
             ${this.getMissingJSONParams().map(o => o.key).join(", ")}
 
@@ -388,11 +388,11 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         `
     }
 
-    EnhancedScript.prototype.injectParameters = function ()                         {
-        return [...this.getJSONParams(), ...this.getMissingJSONParams()].map( param => {
+    EnhancedScript.prototype.injectParameters = function () {
+        return [...this.getJSONParams(), ...this.getMissingJSONParams()].map(param => {
             let value = param.type ? this.getStringifiedDefaultValue(param.type) : this.getDefaultValue(this.defaults.global);
 
-            if( param.value ) {
+            if (param.value) {
                 value = this.detectValueType(param);
             }
 
@@ -400,10 +400,10 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
         }).join("\n");
     }
 
-    EnhancedScript.prototype.buildParameterConfigurator = function ()               {
+    EnhancedScript.prototype.buildParameterConfigurator = function () {
 
-        const defaultGlobalValue = this.getStringifiedDefaultValue( this.defaults.global );
-        const defaultFnValue = this.getDefaultValue( this.defaults.function );
+        const defaultGlobalValue = this.getStringifiedDefaultValue(this.defaults.global);
+        const defaultFnValue = this.getDefaultValue(this.defaults.function);
         const createParameterConfigurator = () => `
     function ParameterConfigurator () {
         this.params = [];
@@ -432,18 +432,18 @@ const wrapEnhancedScript = ({ dest, src, parameters = [], keyword, defaults,  ..
                 return this.params[i].value;
             };
         }
-        return ${ defaultGlobalValue }
+        return ${defaultGlobalValue}
     };
-    var ${ this.getKeyword() } = new ParameterConfigurator();
+    var ${this.getKeyword()} = new ParameterConfigurator();
 
     // Parameter injection from job configuration
-    ${ this.injectParameters() }
+    ${this.injectParameters()}
 `;
 
         return createParameterConfigurator();
     }
 
-    EnhancedScript.prototype.build = function ()                                    {
+    EnhancedScript.prototype.build = function () {
         this.findMissingMatchesInJSX();
 
         // Et voilà!
