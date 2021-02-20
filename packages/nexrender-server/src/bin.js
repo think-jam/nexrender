@@ -13,6 +13,7 @@ const args = arg({
 
     '--port':    Number,
     '--secret':  String,
+    '--mongoDBConnection':  String,
 
     // Aliases
     '-v':        '--version',
@@ -20,10 +21,12 @@ const args = arg({
     '-h':        '--help',
     '-s':        '--secret',
     '-p':        '--port',
+    '-m':        '--mongoDBConnection',
 });
 
 let serverPort = 3000;
 let serverSecret = '';
+let mongoDBConnection = undefined;
 
 if (args['--help']) {
     console.error(chalk`
@@ -54,6 +57,8 @@ if (args['--help']) {
       -p, --port {underline port_number}              specify which port will be used to serve the data (3000 by default)
 
       -s, --secret {underline secret_string}          specify a secret that will be required for every incoming http request to validate against
+      
+      -m, --mongoDBConnection                         specify a mongodb connection string format
 
   {bold ENV VARS}
 
@@ -86,6 +91,10 @@ if (args['--secret']) {
     serverSecret = args['--secret'] || serverSecret;
 }
 
+if (args['--mongoDBConnection']) {
+    mongoDBConnection = args['--mongoDBConnection'] || mongoDBConnection;
+}
+
 if (args['--cleanup']) {
     console.log('> running database cleanup')
     require('./helpers/database').cleanup()
@@ -95,5 +104,5 @@ if (args['--cleanup']) {
 }
 
 console.log(chalk`> starting {bold.cyan nexrender-server} at {bold 0.0.0.0:${serverPort}}; using secret: {bold ${serverSecret ? 'yes' : 'no'}}`)
-
+server.newStorage(mongoDBConnection)
 server.listen(serverPort, serverSecret)
