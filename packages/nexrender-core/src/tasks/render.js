@@ -152,7 +152,6 @@ module.exports = (job, settings) => {
 
         /* on finish (code 0 - success, other - error) */
         instance.on('close', (code) => {
-            console.log(JSON.stringify(scriptsResult, null, 4))
             const outputStr = output
                 .map(a => '' + a).join('');
 
@@ -164,6 +163,9 @@ module.exports = (job, settings) => {
 
                 return reject(new Error(outputStr || 'aerender.exe failed to render the output into the file due to an unknown reason'));
             }
+
+            // Send script results to callbacks
+            job.scriptsResult = scriptsResult;
 
             settings.logger.log(`[${job.uid}] rendering took ~${(Date.now() - renderStopwatch) / 1000} sec.`);
             settings.logger.log(`[${job.uid}] writing aerender job log to: ${logPath}`);

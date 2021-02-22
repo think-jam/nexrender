@@ -95,6 +95,7 @@ const validate = job => {
  * @return {Object} {uid: string, state: string, type: string, renderProgress: number, error: string}
  */
 const getRenderingStatus = job => ({
+    ...job,
     uid: job.uid,
     state: job.state,
     type: job.type,
